@@ -1,0 +1,2 @@
+ansible-core==2.14.15
+git+https://github.com/markafarrell/mitogen.git@feature/handle-tempdir-not-existing

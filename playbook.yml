@@ -1,0 +1,19 @@
+- name: Create a namespace
+  hosts: all
+  gather_facts: false
+  strategy: "{{ strategy }}"
+  tasks:
+    - name: Do something
+      ansible.builtin.copy:
+        dest: /tmp/some-random-file
+        content: |
+          hello
+
+    - name: Remove temp dir
+      ansible.builtin.raw:
+        "rm -rf /tmp/.ansible-*"
+
+    - name: Do something else
+      ansible.builtin.file:
+        path: /tmp/some-random-file
+        state: absent
