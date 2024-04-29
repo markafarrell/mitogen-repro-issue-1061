@@ -11,7 +11,7 @@
 
     - name: Remove temp dir
       ansible.builtin.raw:
-        "rm -rf /tmp/.ansible-*"
+        "rm -rf {{ lookup('env', 'ANSIBLE_REMOTE_TMP') }}"
 
     - name: Do something else
       ansible.builtin.file:

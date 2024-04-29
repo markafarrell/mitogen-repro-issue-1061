@@ -31,6 +31,7 @@
     docker run -dt --name target-server \
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --privileged \
+        --cgroupns=host \
         --rm \
         geerlingguy/docker-debian12-ansible:latest;
     ```
@@ -53,7 +54,8 @@
 7. Run playbook with normal strategy
 
    ```
-   ansible-playbook playbook.yml \
+   ANSIBLE_REMOTE_TMP=/tmp/.ansible-normal-${USER}/tmp \
+    ansible-playbook playbook.yml \
     -i ",$(docker inspect -f \
         '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
         target-server \
@@ -63,9 +65,19 @@
     --extra-vars=ansible_password=test123456
     ```
 
+    ```
+    ANSIBLE_REMOTE_TMP=/tmp/.ansible-normal-${USER}/tmp \
+    ansible-playbook playbook.yml \
+        -i ",localhost" \
+        -c local \
+        --extra-vars=strategy=linear \
+        -vv
+    ```
+
 8. Run playbook with mitogen strategy
 
    ```
+   ANSIBLE_REMOTE_TMP=/tmp/.ansible-mito-${USER}/tmp \
    ansible-playbook playbook.yml \
     -i ",$(docker inspect -f \
         '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
@@ -74,6 +86,15 @@
     --extra-vars=strategy=mitogen_linear \
     --extra-vars=ansible_user=test \
     --extra-vars=ansible_password=test123456
+    ```
+
+    ```
+    ANSIBLE_REMOTE_TMP=/tmp/.ansible-mito-${USER}/tmp \
+    ansible-playbook playbook.yml \
+        -i ",localhost" \
+        -c local \
+        --extra-vars=strategy=mitogen_linear \
+        -vv
     ```
 
 9. Install fix
@@ -83,13 +104,24 @@
 
 10. Run playbook with mitogen strategy
 
-   ```
-   ansible-playbook playbook.yml \
-    -i ",$(docker inspect -f \
-        '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
-        target-server \
-    )" \
-    --extra-vars=strategy=mitogen_linear \
-    --extra-vars=ansible_user=test \
-    --extra-vars=ansible_password=test123456
+    ```
+    ANSIBLE_REMOTE_TMP=/tmp/.ansible-mito-${USER}/tmp \
+    ansible-playbook playbook.yml \
+        -i ",$(docker inspect -f \
+            '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
+            target-server \
+        )" \
+        --extra-vars=strategy=mitogen_linear \
+        --extra-vars=ansible_user=test \
+        --extra-vars=ansible_password=test123456 \
+        -vv
+    ```
+
+    ```
+    ANSIBLE_REMOTE_TMP=/tmp/.ansible-mito-${USER}/tmp \
+    ansible-playbook playbook.yml \
+        -i ",localhost" \
+        -c local \
+        --extra-vars=strategy=mitogen_linear \
+        -vv
     ```
